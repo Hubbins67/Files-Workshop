@@ -6,7 +6,7 @@
   :name: _appendix
   :hidden:
 
-  tools_vms/linux_tools_vm
+  tools_vms/linux_tools_vm_cloud-init
   tools_vms/windows_tools_vm
 
 .. _files:
@@ -39,9 +39,9 @@ Deploying Files
 
    .. figure:: images/1.png
 
-   For the purpose of saving time, the Files 3.5 package has already been uploaded to your cluster. Files binaries can be downloaded directly through Prism or uploaded manually.
+   .. note::
 
-   .. figure:: images/2.png
+     For the purpose of saving time, the Files 3.5 package has already been uploaded to your cluster. Files binaries can be downloaded directly through Prism or uploaded manually.
 
    Additionally, the cluster's **Data Services** IP Address has already been configured (*10.XX.YY.38*). In a Files cluster, storage is presented to the Files VMs as a Volume Group via iSCSI, hence the dependency on the Data Services IP.
 
@@ -77,7 +77,7 @@ Deploying Files
 
    .. note::
 
-     It is typically desirable in production environments to deploy Files with dedicated virtual networks for client and storage traffic. When using two networks, Files will, by design, disallow client traffic the storage network, meaning VMs assigned to the primary network will be unable to access shares.
+     It is typically desirable in production environments to deploy Files with dedicated virtual networks for client and storage traffic. When using two networks, Files will, by design, disallow client traffic to the storage network, meaning VMs assigned to the primary network will be unable to access shares.
 
    .. note::
 
@@ -151,7 +151,11 @@ Deploying Files
 
    .. figure:: images/12.png
 
-#. Observe the default Self Service Restore schedules, this feature controls the snapshot schedule for Windows' Previous Versions functionality. Supporting Previous Versions allows end users to roll back changes to files without engaging storage or backup administrators. Note these local snapshots do not protect the file server cluster from local failures and that replication of the entire file server cluster can be performed to remote Nutanix clusters. Click **Close**.
+#. Observe the default Self Service Restore schedules. This feature controls the snapshot schedule for Windows' Previous Versions functionality. Supporting Previous Versions allows end users to roll back changes to files without engaging storage or backup administrators. Click **Close** when done.
+
+.. note::
+
+  These local snapshots do not protect the file server cluster from local failures, however, replication of the entire file server cluster can be performed to remote Nutanix clusters if desired.
 
    .. figure:: images/13.png
 
@@ -390,12 +394,16 @@ In this exercise you will deploy the File Analytics VM and scan the existing sha
 
 #. Choose **Download** for the 2.0.x version available
 
+.. note::
+
+   For the purpose of saving time, the Files 3.5 package has already been uploaded to your cluster. Files binaries can be downloaded directly through Prism or uploaded manually.
+
 #. Fill out the details
 
    - **Name** - Initials
    - **Storage Container** – Will automatically select the container used by your file server instance
    - **Network List** – Primary - Managed
-   
+
 #. Select **Show Advanced Settings**
 
 #. Ensure **DNS Resolver IP** is set to your Active Directory, ntnxlab.local, domain controller/DNS IP address and **ONLY** that address.
@@ -453,6 +461,13 @@ In this exercise you will deploy the File Analytics VM and scan the existing sha
    - **User:** All Users
    - **Type:** Hourly
    - **Interval:** 1
+
+   .. note::
+
+     The minimum operations percentage is calculated based on the number of files. For example, if there are 100 files, and the minimum operations percentage is set to 5, 5 operations within the scan interval would trigger an anomaly alert.
+
+     Minimum Operation Count: Enter a value for a minimum operation threshold.
+     Analytics triggers an anomaly alert after meeting the threshold.
 
 #. Choose **Save** for that anomaly table entry
 
