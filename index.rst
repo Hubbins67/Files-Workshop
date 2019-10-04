@@ -34,130 +34,14 @@ If you have not yet deployed this VM, see the linked steps and deploy this VM af
 
 Deploying Files
 +++++++++++++++
-
-#. In **Prism > File Server**, click **+ File Server** to open the **New File Server Pre-Check** dialogue.
-
-   .. figure:: images/1.png
-
-   .. note::
-
-     For the purpose of saving time, the Files 3.5 package has already been uploaded to your cluster. Files binaries can be downloaded directly through Prism or uploaded manually.
-
-   Additionally, the cluster's **Data Services** IP Address has already been configured (*10.XX.YY.38*). In a Files cluster, storage is presented to the Files VMs as a Volume Group via iSCSI, hence the dependency on the Data Services IP.
-
-   .. note::
-
-     If staging your own environment, the Data Services IP can be easily configured by selecting :fa:`gear` **> Cluster Details**, specifying the **iSCSI Data Services IP**, and clicking **Save**. Currently, the Data Services IP must be in the same subnet as your CVMs.
-
-   Lastly Files will ensure that at least 1 network has been configured on the cluster. A minimum of 2 networks are recommended to have segmentation between the client side and storage side networks.
-
-#. Click **Continue**.
-
-   .. figure:: images/3.png
-
-#. Fill out the following fields:
-
-   - **Name** - *Intials*-Files (e.g. XYZ-Files)
-   - **Domain** - ntnxlab.local
-   - **File Server Size** - 1 TiB
-
-   .. figure:: images/4.png
-
-   .. note::
-
-     Clicking **Custom Configuration** will allow you to alter the scale up and scale out sizing of the Files VMs based on User and Throughput targets. It also allows for manual sizing of the Files cluster.
-
-     .. figure:: images/5.png
-
-#. Click **Next**.
-
-#. Select the **Primary - Managed** VLAN for the **Client Network**.
-
-   Each Files VM will consume a single IP on the client network.
-
-   .. note::
-
-     It is typically desirable in production environments to deploy Files with dedicated virtual networks for client and storage traffic. When using two networks, Files will, by design, disallow client traffic to the storage network, meaning VMs assigned to the primary network will be unable to access shares.
-
-   .. note::
-
-     As this is an AHV managed network, configuration of individual IPs is not necessary. In an ESXi environment, or using an unmanaged AHV network, you would specify the network details and available IPs as shown below.
-
-     .. figure:: images/6.png
-
-#. Specify your cluster's **Domain Controller** VM IP (found in :ref:`stagingdetails`) as the **DNS Resolver IP** (e.g. 10.XX.YY.40). Leave the default (cluster) NTP Server.
-
-   .. raw:: html
-
-     <strong><font color="red">In order for the Files cluster to successfully find and join the NTNXLAB.local domain it is critical that the DNS Resolver IP is set to the Domain Controller VM IP FOR YOUR CLUSTER. By default, this field is set to the primary Name Server IP configured for the Nutanix cluster, this value is incorrect and will not work.</font></strong>
-
-   .. figure:: images/7.png
-
-#. Click **Next**.
-
-#. Select the **Primary - Managed** VLAN for the Storage Network.
-
-   Each Files VM will consume a single IP on the storage network, plus 1 additional IP for the cluster.
-
-   .. figure:: images/8.png
-
-#. Click **Next**.
-
-#. Fill out the following fields:
-
-   - Select **Use SMB Protocol**
-   - **Username** - Administrator@ntnxlab.local
-   - **Password** - nutanix/4u
-   - Select **Make this user a File Server admin**
-   - Select **Use NFS Protocol**
-   - **User Management and Authentication** - Unmanaged
-
-   .. figure:: images/9.png
-
-   .. note:: In unmanaged mode, users are only identified by UID/GID. In Files 3.5, Files supports both NFSv3 and NFSv4
-
-#. Click **Next**.
-
-   By default, Files will automatically create a Protection Domain to take daily snapshots of the Files cluster and retain the previous 2 snapshots. After deployment, the snapshot schedule can be modified and remote replication sites can be defined.
-
-   .. figure:: images/10.png
-
-#. Click **Create** to begin the Files deployment.
-
-#. Monitor deployment progress in **Prism > Tasks**.
-
-   Deployment should take approximately 10 minutes.
-
-   .. figure:: images/11.png
-
-   .. note::
-
-     If you receive a warning regarding DNS record validation failure, this can be safely ignored. The shared cluster does not use the same DNS servers as your Files cluster, and as a result is unable to resolve the DNS entries created when deploying Files.
-
-#. While waiting for the file server deployment, if you have not already done so deploy the Windows Tools VM.
-
-#. Connect to the Windows Tools VM via RDP or console
-
-#. Download the sample files for File Analytics to the Tools VM:
-
-   - `https://peerresources.blob.core.windows.net/sample-data/SampleData_Small.zip <https://peerresources.blob.core.windows.net/sample-data/SampleData_Small.zip>`_
-
-#. Download the File Analytics json and qcow files to the Tools VM
-
-   - `nutanix-file-analytics-1.0.1-metadata.json <http://10.42.194.11/workshop_staging/nutanix-file-analytics-1.0.1-metadata.json>`_
-   - `nutanix-file-analytics-1.0.1.qcow2 <http://10.42.194.11/workshop_staging/nutanix-file-analytics-1.0.1.qcow2>`_
-
-#. Upon completion, return to **Prism > File Server** and select the *Initials*\ **-Files** server and click **Protect**.
-
-   .. figure:: images/12.png
-
-#. Observe the default Self Service Restore schedules. This feature controls the snapshot schedule for Windows' Previous Versions functionality. Supporting Previous Versions allows end users to roll back changes to files without engaging storage or backup administrators. Click **Close** when done.
-
 .. note::
 
-  These local snapshots do not protect the file server cluster from local failures, however, replication of the entire file server cluster can be performed to remote Nutanix clusters if desired.
+  In the interest of saving time, the Files 3.5 package has already been uploaded to your cluster and a File Server has been deployed with the name of "HOLFS". Files binaries can be downloaded directly through Prism or uploaded manually. To deploy Files on a cluster, you would navigate to **File Server** in the main Prism menu, and select **+ File Server**:
 
-   .. figure:: images/13.png
+  .. figure:: images/1.png
+
+  You would then follow the on-screen steps to define a name for the file server, along with network configuration settings. To see the settings with which the file server has been deployed, navigate to **File Server** in the Prism Element menu, then click on the file server "HOLFS," then select **Update > Network Configuration** to see the file server network configuration settings 
+
 
 Using SMB Shares
 ++++++++++++++++
