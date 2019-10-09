@@ -43,6 +43,20 @@ Deploying Files
   You would then follow the on-screen steps to define a name for the file server, along with network configuration settings. To see the settings with which the file server has been deployed, navigate to **File Server** in the Prism Element menu, then click on the file server "HOLFS," then select **Update > Network Configuration** to see the file server network configuration settings
 
 
+Enabling Protocols for the File Server
+..................
+
+By default, the file server deployed has SMB enabled but not NFS.  Before we begin deploying NFS exports, we need to enable NFS Protocol on the File Server.
+
+#. In **Prism > File Server**, click **Protocol Management**, then click **Directory Management**
+
+#. Click tick box "Use NFS Protocol"
+
+   .. figure:: images/2.png
+
+#. Then select "Update". This will now enable you to deploy both SMB and NFS shares
+
+
 Using SMB Shares
 ++++++++++++++++
 
@@ -57,7 +71,7 @@ Creating the Share
 
    - **Name** - Marketing
    - **Description (Optional)** - Departmental share for marketing team
-   - **File Server** - *Initials*\ **-Files**
+   - **File Server** - **HOLFS**
    - **Share Path (Optional)** - Leave blank. This field allows you to specify an existing path in which to create the nested share.
    - **Max Size (Optional)** - Leave blank. This field allows you to set a hard quota for the individual share.
    - **Select Protocol** - SMB
@@ -93,13 +107,14 @@ Testing the Share
 
      The Tools VM has already been joined to the **NTNXLAB.local** domain. You could use any domain joined VM to complete the following steps.
 
-#. Open ``\\<Intials>-Files.ntnxlab.local\`` in **File Explorer**.
+#. Open ``\\HOLFS.ntnxlab.local\`` in **File Explorer**. If prompted for credentials, use the Domain Administrator account:
+    - administrator@ntnxlab.local
+    - nutanix/4u
 
    .. figure:: images/17.png
 
-#. Test accessing the Marketing share by extracting the SampleData_Small.zip files downloaded in the previous step into the share.
+#. Test accessing the Marketing share by creating a text file or copying a file created on the Tools VM to the share.
 
-   .. figure:: images/18.png
 
    - The **NTNXLAB\\Administrator** user was specified as a Files Administrator during deployment of the Files cluster, giving it read/write access to all shares by default.
    - Managing access for other users is no different than any other SMB share.
@@ -110,7 +125,7 @@ Testing the Share
 
    .. figure:: images/19.png
 
-#. Select **Users (**\ *Initials*\ **-Files\\Users)** and click **Remove**.
+#. Select **Users (**\ *HOLFS*\ **-Files\\Users)** and click **Remove**.
 
 #. Click **Add**.
 
@@ -166,7 +181,7 @@ Creating the Export
 
    - **Name** - logs
    - **Description (Optional)** - File share for system logs
-   - **File Server** - *Initials*\ **-Files**
+   - **File Server** - HOLFS**
    - **Share Path (Optional)** - Leave blank
    - **Max Size (Optional)** - Leave blank
    - **Select Protocol** - NFS
@@ -231,7 +246,7 @@ You will first provision a CentOS VM to use as a client for your Files export.
 
        [root@CentOS ~]# yum install -y nfs-utils #This installs the NFSv4 client
        [root@CentOS ~]# mkdir /filesmnt
-       [root@CentOS ~]# mount.nfs4 <Intials>-Files.ntnxlab.local:/ /filesmnt/
+       [root@CentOS ~]# mount.nfs4 HOLFS.ntnxlab.local:/ /filesmnt/
        [root@CentOS ~]# df -kh
        Filesystem                      Size  Used Avail Use% Mounted on
        /dev/mapper/centos_centos-root  8.5G  1.7G  6.8G  20% /
@@ -284,7 +299,7 @@ In this exercise you will deploy the File Analytics VM and scan the existing sha
 
 #. Fill out the details
 
-   - **Name** - Initials
+   - **Name** - <File Server Name>
    - **Storage Container** – Will automatically select the container used by your file server instance
    - **Network List** – Primary - Managed
 
