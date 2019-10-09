@@ -292,7 +292,7 @@ In this exercise you will deploy the File Analytics VM and scan the existing sha
 
 #. Ensure **DNS Resolver IP** is set to your Active Directory, ntnxlab.local, domain controller/DNS IP address and **ONLY** that address.
 
-  .. figure:: image/FA001.png
+    .. figure:: images/FA001.png
 
 #. Choose **Deploy**
 
