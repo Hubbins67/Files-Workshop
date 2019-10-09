@@ -40,7 +40,7 @@ Deploying Files
 
   .. figure:: images/1.png
 
-  You would then follow the on-screen steps to define a name for the file server, along with network configuration settings. To see the settings with which the file server has been deployed, navigate to **File Server** in the Prism Element menu, then click on the file server "HOLFS," then select **Update > Network Configuration** to see the file server network configuration settings 
+  You would then follow the on-screen steps to define a name for the file server, along with network configuration settings. To see the settings with which the file server has been deployed, navigate to **File Server** in the Prism Element menu, then click on the file server "HOLFS," then select **Update > Network Configuration** to see the file server network configuration settings
 
 
 Using SMB Shares
@@ -291,6 +291,8 @@ In this exercise you will deploy the File Analytics VM and scan the existing sha
 #. Select **Show Advanced Settings**
 
 #. Ensure **DNS Resolver IP** is set to your Active Directory, ntnxlab.local, domain controller/DNS IP address and **ONLY** that address.
+
+    .. figure:: images/FA001.png
 
 #. Choose **Deploy**
 
