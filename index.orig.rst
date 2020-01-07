@@ -6,7 +6,7 @@
   :name: _appendix
   :hidden:
 
-  tools_vms/linux_tools_vm
+  tools_vms/linux_tools_vm_cloud-init
   tools_vms/windows_tools_vm
 
 .. _files:
@@ -15,7 +15,7 @@
 Files
 -----
 
-*The estimated time to complete this lab is 75 minutes.*
+*The estimated time to complete this lab is 60 minutes.*
 
 Overview
 ++++++++
@@ -34,121 +34,28 @@ If you have not yet deployed this VM, see the linked steps and deploy this VM af
 
 Deploying Files
 +++++++++++++++
+.. note::
 
-#. In **Prism > File Server**, click **+ File Server** to open the **New File Server Pre-Check** dialogue.
+  In the interest of saving time, the Files 3.5 package has already been uploaded to your cluster and a File Server has been deployed with the name of "HOLFS". Files binaries can be downloaded directly through Prism or uploaded manually. To deploy Files on a cluster, you would navigate to **File Server** in the main Prism menu, and select **+ File Server**:
 
-   .. figure:: images/1.png
+  .. figure:: images/1.png
 
-   For the purpose of saving time, the Files 3.6 package has already been uploaded to your cluster. Files binaries can be downloaded directly through Prism or uploaded manually.
+  You would then follow the on-screen steps to define a name for the file server, along with network configuration settings. To see the settings with which the file server has been deployed, navigate to **File Server** in the Prism Element menu, then click on the file server "HOLFS," then select **Update > Network Configuration** to see the file server network configuration settings
+
+
+Enabling Protocols for the File Server
+..................
+
+By default, the file server deployed has SMB enabled but not NFS.  Before we begin deploying NFS exports, we need to enable NFS Protocol on the File Server.
+
+#. In **Prism > File Server**, click **Protocol Management**, then click **Directory Management**
+
+#. Click tick box "Use NFS Protocol"
 
    .. figure:: images/2.png
 
-   Additionally, the cluster's **Data Services** IP Address has already been configured (*10.XX.YY.38*). In a Files cluster, storage is presented to the Files VMs as a Volume Group via iSCSI, hence the dependency on the Data Services IP.
+#. Then select "Update". This will now enable you to deploy both SMB and NFS shares
 
-   .. note::
-
-     If staging your own environment, the Data Services IP can be easily configured by selecting :fa:`gear` **> Cluster Details**, specifying the **iSCSI Data Services IP**, and clicking **Save**. Currently, the Data Services IP must be in the same subnet as your CVMs.
-
-   Lastly Files will ensure that at least 1 network has been configured on the cluster. A minimum of 2 networks are recommended to have segmentation between the client side and storage side networks.
-
-#. Click **Continue**.
-
-   .. figure:: images/3.png
-
-#. Fill out the following fields:
-
-   - **Name** - *Intials*-Files (e.g. XYZ-Files)
-   - **Domain** - ntnxlab.local
-   - **File Server Size** - 1 TiB
-
-   .. figure:: images/4.png
-
-   .. note::
-
-     Clicking **Custom Configuration** will allow you to alter the scale up and scale out sizing of the Files VMs based on User and Throughput targets. It also allows for manual sizing of the Files cluster.
-
-     .. figure:: images/5.png
-
-#. Click **Next**.
-
-#. Select the **Primary - Managed** VLAN for the **Client Network**.
-
-   Each Files VM will consume a single IP on the client network.
-
-   .. note::
-
-     It is typically desirable in production environments to deploy Files with dedicated virtual networks for client and storage traffic. When using two networks, Files will, by design, disallow client traffic the storage network, meaning VMs assigned to the primary network will be unable to access shares.
-
-   .. note::
-
-     As this is an AHV managed network, configuration of individual IPs is not necessary. In an ESXi environment, or using an unmanaged AHV network, you would specify the network details and available IPs as shown below.
-
-     .. figure:: images/6.png
-
-#. Specify your cluster's **Domain Controller** VM IP (found in :ref:`stagingdetails`) as the **DNS Resolver IP** (e.g. 10.XX.YY.40). Leave the default (cluster) NTP Server.
-
-   .. raw:: html
-
-     <strong><font color="red">In order for the Files cluster to successfully find and join the NTNXLAB.local domain it is critical that the DNS Resolver IP is set to the Domain Controller VM IP FOR YOUR CLUSTER. By default, this field is set to the primary Name Server IP configured for the Nutanix cluster, this value is incorrect and will not work.</font></strong>
-
-   .. figure:: images/7.png
-
-#. Click **Next**.
-
-#. Select the **Primary - Managed** VLAN for the Storage Network.
-
-   Each Files VM will consume a single IP on the storage network.
-
-   .. figure:: images/8.png
-
-#. Click **Next**.
-
-#. Fill out the following fields:
-
-   - Select **Use SMB Protocol**
-   - **Username** - Administrator@ntnxlab.local
-   - **Password** - nutanix/4u
-   - Select **Make this user a File Server admin**
-   - Select **Use NFS Protocol**
-   - **User Management and Authentication** - Unmanaged
-
-   .. figure:: images/9.png
-
-   .. note:: In unmanaged mode, users are only identified by UID/GID. In Files 3.5, Files supports both NFSv3 and NFSv4
-
-#. Click **Next**.
-
-   By default, Files will automatically create a Protection Domain to take daily snapshots of the Files cluster and retain the previous 2 snapshots. After deployment, the snapshot schedule can be modified and remote replication sites can be defined.
-
-   .. figure:: images/10.png
-
-#. Click **Create** to begin the Files deployment.
-
-#. Monitor deployment progress in **Prism > Tasks**.
-
-   Deployment should take approximately 10 minutes.
-
-   .. figure:: images/11.png
-
-   .. note::
-
-     If you receive a warning regarding DNS record validation failure, this can be safely ignored. The shared cluster does not use the same DNS servers as your Files cluster, and as a result is unable to resolve the DNS entries created when deploying Files.
-
-#. While waiting for the file server deployment, if you have not already done so deploy the Windows Tools VM.
-
-#. Connect to the Windows Tools VM via RDP or console
-
-#. Download the sample files for File Analytics to the Tools VM:
-
-   - `https://peerresources.blob.core.windows.net/sample-data/SampleData_Small.zip <https://peerresources.blob.core.windows.net/sample-data/SampleData_Small.zip>`_
-
-#. Upon completion, return to **Prism > File Server** and select the *Initials*\ **-Files** server and click **Protect**.
-
-   .. figure:: images/12.png
-
-#. Observe the default Self Service Restore schedules, this feature controls the snapshot schedule for Windows' Previous Versions functionality. Supporting Previous Versions allows end users to roll back changes to files without engaging storage or backup administrators. Note these local snapshots do not protect the file server cluster from local failures and that replication of the entire file server cluster can be performed to remote Nutanix clusters. Click **Close**.
-
-   .. figure:: images/13.png
 
 Using SMB Shares
 ++++++++++++++++
@@ -164,7 +71,7 @@ Creating the Share
 
    - **Name** - Marketing
    - **Description (Optional)** - Departmental share for marketing team
-   - **File Server** - *Initials*\ **-Files**
+   - **File Server** - **HOLFS**
    - **Share Path (Optional)** - Leave blank. This field allows you to specify an existing path in which to create the nested share.
    - **Max Size (Optional)** - Leave blank. This field allows you to set a hard quota for the individual share.
    - **Select Protocol** - SMB
@@ -200,13 +107,14 @@ Testing the Share
 
      The Tools VM has already been joined to the **NTNXLAB.local** domain. You could use any domain joined VM to complete the following steps.
 
-#. Open ``\\<Intials>-Files.ntnxlab.local\`` in **File Explorer**.
+#. Open ``\\HOLFS.ntnxlab.local\`` in **File Explorer**. If prompted for credentials, use the Domain Administrator account:
+    - administrator@ntnxlab.local
+    - nutanix/4u
 
    .. figure:: images/17.png
 
-#. Test accessing the Marketing share by extracting the SampleData_Small.zip files downloaded in the previous step into the share.
+#. Test accessing the Marketing share by creating a text file or copying a file created on the Tools VM to the share.
 
-   .. figure:: images/18.png
 
    - The **NTNXLAB\\Administrator** user was specified as a Files Administrator during deployment of the Files cluster, giving it read/write access to all shares by default.
    - Managing access for other users is no different than any other SMB share.
@@ -217,7 +125,7 @@ Testing the Share
 
    .. figure:: images/19.png
 
-#. Select **Users (**\ *Initials*\ **-Files\\Users)** and click **Remove**.
+#. Select **Users (**\ *HOLFS*\ **-Files\\Users)** and click **Remove**.
 
 #. Click **Add**.
 
@@ -273,7 +181,7 @@ Creating the Export
 
    - **Name** - logs
    - **Description (Optional)** - File share for system logs
-   - **File Server** - *Initials*\ **-Files**
+   - **File Server** - HOLFS**
    - **Share Path (Optional)** - Leave blank
    - **Max Size (Optional)** - Leave blank
    - **Select Protocol** - NFS
@@ -338,7 +246,7 @@ You will first provision a CentOS VM to use as a client for your Files export.
 
        [root@CentOS ~]# yum install -y nfs-utils #This installs the NFSv4 client
        [root@CentOS ~]# mkdir /filesmnt
-       [root@CentOS ~]# mount.nfs4 <Intials>-Files.ntnxlab.local:/ /filesmnt/
+       [root@CentOS ~]# mount.nfs4 HOLFS.ntnxlab.local:/ /filesmnt/
        [root@CentOS ~]# df -kh
        Filesystem                      Size  Used Avail Use% Mounted on
        /dev/mapper/centos_centos-root  8.5G  1.7G  6.8G  20% /
@@ -372,134 +280,8 @@ You will first provision a CentOS VM to use as a client for your Files export.
 
    Note that the utilization data is updated every 10 minutes.
 
-Selective File Blocking
-+++++++++++++++++++++++
-
-In this exercise you will configure Files to block specific file extensions for the file server and the Marketing share. 
-
-#. In **Prism** > **File Server** > Select your file server and click **Update** > then click **Blocked File Types**
-
-   .. figure:: images/47.png
-   
-#. Under **Blocked File Types** enter a comma separated list of extensions like .flv,.mov and click **Save**
-
-   .. figure:: images/48.png
-   
-#. Open a PowerShell window by clicking on the **PowerShell icon** on the taskbar. Enter the following command where you will see an access denied error message: 
-
-   .. code-block:: bash
-     
-	 new-item \\xyz-files.ntnxlab.local\marketing\MyMovie.flv
-   
-   .. figure:: images/49.png
-   
-#. In **Prism** > **File Server** > **Share/Export** > click on the Marketing share and select **Update**
-
-   .. figure:: images/50.png
-	
-#. Select **Next** to get to the **Settings** page.
-
-#. Check **Blocked File Types** and enter .none as a file extension. 
-
-   .. figure:: images/51.png
-   
-#. Select **Next** then **Save** on the **Summary** page to complete the update. 
-
-#. Blocked file type settings at the share level override the server level setting.  Using PowerShell issue the same command as the previous step.  The command will now complete successfully.
-
-   .. figure:: images/52.png
-
-Multi-protocol
-++++++++++++++
-
-In this exercise you will configure an existing SMB share to also support NFS. Enabling multi-protocol access requires you to configure user mappings and define the native and non-native protocol for a share.  
-
-Configure User Mappings
-.......................
-
-A Nutanix Files share has the concept of a native and non-native protocol.  All permissions are applied using the native protocol.  
-Any access requests using the non-native protocol requires a user or group mapping to the permission applied from the native side.
-There are several ways to apply user and group mappings including rule based, explicit and default mappings.  You will first configure a default mapping.
-
-#. In **Prism** > **File Server** > Select your file server and click **Protocol Management** > then click **User Mapping**
-
-   .. figure:: images/53.png
-   
-#. In the **User Mapping** dialog click **Next** at least two times, until you are on the **Default Mapping** page. 
-
-#. From the **Default Mapping** page choose both **Deny access to NFS export** and **Deny access to SMB share** as the defaults for when no mapping is found.
-
-   .. figure:: images/54.png
-   
-#. Complete the initial mapping by choosing **Next** and then **Save** on the **Summary** page. 
-
-#. In **Prism** > **File Server** > **Share/Export** > click on the Marketing share and select **Update**.
-
-#. From the **Basics** page check the box at the bottom which says **Enable multiprotocol access for NFS**.
-
-   .. figure:: images/55.png
-   
-#. Click **Next** then from the **Settings* page check **Simultaneous access to the same files from both protocols**.
-
-   .. figure:: images/56.png
-
-#. Click **Next** and then **Save** from the **Summary** page. 
-
-#. Connect via SSH to the *Initials*\ -NFS-Client VM.
-
-#. Execute the following commands:
-
-     .. code-block:: bash
-
-       [root@CentOS ~]# mkdir /filesmnt/marketing
-       [root@CentOS ~]# mount.nfs4 <Intials>-Files.ntnxlab.local:/Marketing /filesmnt/marketing
-       [root@CentOS ~]# dir /filesmnt/marketing
-       dir: cannot open directory /filesmnt/marketing: Permission denied
-       [root@CentOS ~]#
-	  
-   .. note:: The mount operation is case sensitive.  
-
-Because the default mapping is to deny access the Permission denied error is expected.  You will now add an explicit mapping to allow access to the non-native NFS protocol user. 
-We will need to get the user ID (UID) to create the explicit mapping.
-
-#. Execute the following command and take note of the UID:
-
-     .. code-block:: bash
-
-       [root@CentOS ~]# id
-       uid=0(root) gid=0(root) groups=0(root) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
-       [root@CentOS ~]#
-
-#. In **Prism** > **File Server** > Select your file server and click **Protocol Management** > then click **User Mapping**
-
-#. Click **Next** until you are on the **Explicit Mapping** page 
-
-#. Click **+ Add one-to-one mapping**
-
-#. Fill out the following fields:
-
-   - **SMB Name** - ntnxlab\\administrator
-   - **NFS ID** - UID from previous step (0 if root)
-   - **User/Group** - User
-
-   .. figure:: images/57.png
-
-#. Click **Save** under the **Actions** column
-
-#. Click **Next** until the **Summary** page and then click **Save**
-
-#. Click **Close**
-
-#. Go back to the NFS-Client VM and execute the following:
-
-     .. code-block:: bash
-
-       [root@CentOS ~]# dir /filesmnt/marketing
-       MyMovie.flv
-       [root@CentOS ~]#
-
 File Analytics
-++++++++++++++
++++++++++++++++++
 
 In this exercise you will deploy the File Analytics VM and scan the existing shares to build out the dashboard.  You will also create anomaly alerts and view the audit details for your file server instance.
 
@@ -511,15 +293,21 @@ In this exercise you will deploy the File Analytics VM and scan the existing sha
 
 #. Choose **Download** for the 2.0.x version available
 
+.. note::
+
+   For the purpose of saving time, the Files 3.5 package has already been uploaded to your cluster. Files binaries can be downloaded directly through Prism or uploaded manually.
+
 #. Fill out the details
 
-   - **Name** - Initials
+   - **Name** - <File Server Name>
    - **Storage Container** – Will automatically select the container used by your file server instance
    - **Network List** – Primary - Managed
-   
+
 #. Select **Show Advanced Settings**
 
 #. Ensure **DNS Resolver IP** is set to your Active Directory, ntnxlab.local, domain controller/DNS IP address and **ONLY** that address.
+
+    .. figure:: images/FA001.png
 
 #. Choose **Deploy**
 
@@ -574,6 +362,13 @@ In this exercise you will deploy the File Analytics VM and scan the existing sha
    - **User:** All Users
    - **Type:** Hourly
    - **Interval:** 1
+
+   .. note::
+
+     The minimum operations percentage is calculated based on the number of files. For example, if there are 100 files, and the minimum operations percentage is set to 5, 5 operations within the scan interval would trigger an anomaly alert.
+
+     Minimum Operation Count: Enter a value for a minimum operation threshold.
+     Analytics triggers an anomaly alert after meeting the threshold.
 
 #. Choose **Save** for that anomaly table entry
 
@@ -655,17 +450,17 @@ In this exercise you will deploy the File Analytics VM and scan the existing sha
 
    .. note:: The Capacity Trend dashboard panel updates every 24 hrs.
 
-New with Files 3.6
+New with Files 3.5
 ++++++++++++
 
-With the recent Files 3.6 release we have introduced:
+With the recent Files 3.5 release we have introduced:
 
-- NearSync DR support
-- In-flight Encryption for SMB
-- SMB durable handle support
-- Selective file blocking
-- Windows 2019 domain and client support
-- 120TB node support
+- Support for NFSv3
+- Support for Self-Service File Restore for NFS (currently supported for SMB shares)
+- Support for Change File Tracking (CFT) Backup for NFS (currently supported for SMB shares)
+- Support for Nutanix software-based Data-At-Rest Encryption
+- Support for multi-protocol access to shares (Now GA with Files 3.5.1)
+- File Analytics, a comprehensive view into Files usage for the purposes of insights into file system data, file and user audit trails and anomaly detection (Now GA with Files 3.5.2 and File Analytics 2.0)
 
 
 Takeaways
