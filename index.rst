@@ -11,9 +11,9 @@
 
 .. _files:
 
------
-Files
------
+----------------------
+Nutanix Files Workshop
+----------------------
 
 *The estimated time to complete this lab is 75 minutes.*
 
